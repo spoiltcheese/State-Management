@@ -87,6 +87,10 @@ function App() {
     },
   ]);
 
+  // Calculate totals from the team array
+  let totalStrength = team.reduce((sum, fighter) => sum + fighter.strength, 0);
+  let totalAgility = team.reduce((sum, fighter) => sum + fighter.agility, 0);
+
   const handleAddFighter = (fighter) => {
     if (money >= fighter.price) {
       setTeam((prevState) => [...prevState, fighter]);
@@ -95,15 +99,28 @@ function App() {
         prevFighters.filter((f) => f.id !== fighter.id)
       );
       setMsg(`${fighter.name} added to your team!`);
+      totalStrength += fighter.strength;
+      totalAgility += fighter.agility;
     } else {
       setMsg("Not enough money to buy this fighter!");
     }
   };
 
+  const handleRemoveFighter = (fighter) => {
+    setTeam((prevState) => prevState.filter((f) => f.id !== fighter.id));
+    setMoney((prevMoney) => prevMoney + fighter.price);
+    setZombieFighters((prevFighters) => [...prevFighters, fighter]);
+    setMsg(`${fighter.name} removed from your team!`);
+    totalStrength -= fighter.strength;
+    totalAgility -= fighter.agility;
+  };
+
   return (
     <>
       <h3>{msg}</h3>
-      <h2>Money: {money} </h2>
+      <h2>
+        Money: {money} Strength: {totalStrength} Agility: {totalAgility}
+      </h2>
       <h3>Current Team: {team.length === 0 && <span>None</span>}</h3>
 
       <ul>
@@ -116,6 +133,11 @@ function App() {
             <p>Price: {item.price}</p>
             <p>Strength: {item.strength}</p>
             <p>Agility: {item.agility}</p>
+            <p>
+              <button id={item.id} onClick={() => handleRemoveFighter(item)}>
+                Remove
+              </button>
+            </p>
           </li>
         ))}
       </ul>
